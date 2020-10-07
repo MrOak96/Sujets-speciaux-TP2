@@ -1,6 +1,10 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
+﻿using ApiHelper.Models;
+using Microsoft.VisualBasic.CompilerServices;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ApiHelper
@@ -10,19 +14,38 @@ namespace ApiHelper
 
         public static async Task<List<string>> LoadBreedList()
         {
-            ///TODO : À compléter LoadBreedList
-            /// Attention le type de retour n'est pas nécessairement bon
-            /// J'ai mis quelque chose pour avoir une base
-            /// TODO : Compléter le modèle manquant
+            string url = "https://dog.ceo/api/breeds/list/all";
 
-            return new List<string>();
+            using (HttpResponseMessage response = await ApiHelper.ApiClient.GetAsync(url))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    BreedModel result = await response.Content.ReadAsAsync<BreedModel>();
+                    return result.message.Keys.ToList();
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
         }
 
         public static async Task<string> GetImageUrl(string breed)
         {
-            /// TODO : GetImageUrl()
-            /// TODO : Compléter le modèle manquant
-            return string.Empty;
+            string url = $"https://dog.ceo/api/breed/{breed}/images/random";
+
+            using (HttpResponseMessage response = await ApiHelper.ApiClient.GetAsync(url))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    DogModel res = await response.Content.ReadAsAsync<DogModel>();
+                    return res.message;
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
         }
     }
 }
